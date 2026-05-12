@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《师父：匆匆一生》改编分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #0a0a0a;
+            color: #e8e6e3;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .slide-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4vh 5vw;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: all;
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: translateX(-100px);
+        }
+
+        /* 封面样式 */
+        .cover-slide {
+            background: linear-gradient(135deg, #1a0f0a 0%, #0a0a0a 100%);
+        }
+
+        .cover-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c41e3a' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .cover-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .cover-badge {
+            display: inline-block;
+            padding: 8px 24px;
+            border: 1px solid #c41e3a;
+            color: #c41e3a;
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            margin-bottom: 3vh;
+            text-transform: uppercase;
+        }
+
+        .cover-title {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 2vh;
+            background: linear-gradient(90deg, #fff 0%, #c41e3a 50%, #fff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        .cover-subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: #888;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .cover-meta {
+            margin-top: 4vh;
+            display: flex;
+            gap: 3vw;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .cover-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cover-meta span::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #c41e3a;
+            transform: rotate(45deg);
+        }
+
+        /* 内容页通用 */
+        .content-slide {
+            background: #0a0a0a;
+        }
+
+        .slide-header {
+            position: absolute;
+            top: 4vh;
+            left: 5vw;
+            right: 5vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slide-number {
+            font-size: 0.8rem;
+            color: #c41e3a;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .slide-progress {
+            width: 200px;
+            height: 2px;
+            background: #222;
+            position: relative;
+        }
+
+        .slide-progress-bar {
+            height: 100%;
+            background: #c41e3a;
+            transition: width 0.3s;
+        }
+
+        .slide-body {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            gap: 3vw;
+            align-items: center;
+        }
+
+        /* 双栏布局 */
+        .two-col {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .three-col {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .col-visual {
+            position: relative;
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .col-visual::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px solid #222;
+        }
+
+        .col-visual::after {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            border: 1px solid #c41e3a;
+            opacity: 0.3;
+        }
+
+        .visual-placeholder {
+            text-align: center;
+            color: #444;
+        }
+
+        .visual-placeholder .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .col-text h2 {
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            font-weight: 700;
+            margin-bottom: 2vh;
+            line-height: 1.3;
+        }
+
+        .col-text h2 span {
+            color: #c41e3a;
+        }
+
+        .key-point {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1.5vh;
+            font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+            line-height: 1.7;
+            color: #bbb;
+        }
+
+        .key-point::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.6em;
+            width: 8px;
+            height: 8px;
+            background: #c41e3a;
+            transform: rotate(45deg);
+        }
+
+        /* 卡片样式 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2vw;
+            width: 100%;
+        }
+
+        .card {
+            background: #111;
+            border: 1px solid #222;
+            padding: 3vh 2vw;
+            position: relative;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            border-color: #c41e3a;
+            transform: translateY(-4px);
+        }
+
+        .card-num {
+            position: absolute;
+            top: -12px;
+            left: 2vw;
+            background: #0a0a0a;
+            padding: 0 12px;
+            color: #c41e3a;
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1vh;
+            color: #fff;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        /* 时间线 */
+        .timeline {
+            position: relative;
+            padding-left: 3vw;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #c41e3a 0%, #222 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 3vh;
+            padding-bottom: 3vh;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: calc(-3vw - 5px);
+            top: 0.3em;
+            width: 12px;
+            height: 12px;
+            background: #c41e3a;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px #0a0a0a;
+        }
+
+        .timeline-item h4 {
+            color: #c41e3a;
+            font-size: 1rem;
+            margin-bottom: 0.5vh;
+        }
+
+        .timeline-item p {
+            color: #888;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* 对比表格 */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .compare-table th {
+            text-align: left;
+            padding: 2vh 2vw;
+            background: #111;
+            color: #c41e3a;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .compare-table td {
+            padding: 2vh 2vw;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 0.95rem;
+            color: #bbb;
+        }
+
+        .compare-table tr:hover td {
+            background: #111;
+            color: #fff;
+        }
+
+        /* 结论页 */
+        .verdict-box {
+            background: #111;
+            border-left: 4px solid #c41e3a;
+            padding: 3vh 3vw;
+            margin: 2vh 0;
+        }
+
+        .verdict-box h3 {
+            color: #fff;
+            margin-bottom: 1vh;
+        }
+
+        .verdict-box p {
+            color: #888;
+            line-height: 1.7;
+        }
+
+        /* 导航 */
+        .nav-controls {
+            position: fixed;
+            bottom: 4vh;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1vw;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            width: 48px;
+            height: 48px;
+            border: 1px solid #333;
+            background: #0a0a0a;
+            color: #888;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            border-color: #c41e3a;
+            color: #c41e3a;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .page-indicator {
+            position: fixed;
+            bottom: 4vh;
+            right: 4vw;
+            font-size: 0.8rem;
+            color: #444;
+            letter-spacing: 2px;
+        }
+
+        /* 强调文字 */
+        .highlight {
+            color: #c41e3a;
+            font-weight: 700;
+        }
+
+        .dim {
+            color: #555;
+        }
+
+        /* 游戏机制标签 */
+        .mechanic-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #1a0f0a;
+            border: 1px solid #c41e3a;
+            color: #c41e3a;
+            font-size: 0.8rem;
+            margin: 4px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .two-col, .three-col, .card-grid {
+                grid-template-columns: 1fr;
+            }
+            .col-visual::after {
+                display: none;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            .nav-controls, .page-indicator {
+                display: none;
+            }
+            .slide {
+                position: relative;
+                opacity: 1;
+                transform: none;
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: 封面 -->
+        <div class="slide cover-slide active" data-index="0">
+            <div class="cover-content">
+                <div class="cover-badge">Secret Level · 第二集</div>
+                <h1 class="cover-title">师父：匆匆一生</h1>
+                <p class="cover-subtitle">游戏IP动画化的改编逻辑与可玩性延伸</p>
+                <div class="cover-meta">
+                    <span>爱死机团队出品</span>
+                    <span>2024年首播</span>
+                    <span>Sloclap原作</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: 核心问题 -->
+        <div class="slide content-slide" data-index="1">
+            <div class="slide-header">
+                <span class="slide-number">01 / 核心命题</span>
+                <div class="slide-progress"><div class="slide-progress-bar" style="width: 13%"></div></div>
+            </div>
+            <div class="slide-body two-col">
+                <div class="col-text">
+                    <h2>为何选择<span>《师父》</span>？</h2>
+                    <div class="key-point">
+                        <strong class="highlight">机制即叙事</strong> — 年龄增长=死亡惩罚，天然具备"时间流逝"的视觉化张力
+                    </div>
+                    <div class="key-point">
+                        <strong class="highlight">东方美学空白</strong> — 西方动画工业极少触及白眉拳与粤港市井，差异化显著
+                    </div>
+                    <div class="key-point">
+                        <strong class="highlight">情感普世性</strong> — 复仇与和解的主题跨越文化壁垒，无需游戏经验即可共情
+                    </div>
+                    <div class="key-point">
+                        <strong class="highlight">低门槛高深度</strong> — 单一场景、线性时间线，15分钟浓缩一生，适合短片载体
+                    </div>
+                </div>
+                <div class="col-visual">
+                    <div class="visual-placeholder">
+                        <div class="icon">⏳</div>
+                        <p>核心机制可视化<br><span class="dim">衰老 × 功夫 × 救赎</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: 游戏原作要素 -->
+        <div class="slide content-slide" data-index="2">
+            <div class="slide-header">
+                <span class="slide-number">02 / 原作基因</span>
+                <div class="slide-progress"><div class="slide-progress-bar" style="width: 25%"></div></div>
+            </div>
+            <div class="slide-body">
+                <div class="card-grid">
+                    <div class="card">
+                        <span class="card-num">01</span>
+                        <h3>死亡衰老机制</h3>
+                        <p>每次死亡以寿命为代价复活，角色外貌、体力、攻击力随年龄变化，<span class="highlight">70岁为极限</span></p>
+                    </div>
+                    <div class="card">
+                        <span class="card-num">02</span>
+                        <h3>白眉拳法系统</h3>
+                        <p>广东传统武术，强调短桥寸劲，与游戏快节奏近战高度契合，动作捕捉来自<span class="highlight">Benjamin Colussi</span></p>
+                    </div>
+                    <div class="card">
+                        <span class="card-num">03</span>
+                        <h3>五仇家结构</h3>
+                        <p>夜店、美术馆、塔楼、疗养院、避难所——<span class="highlight">场景即人物性格外化</span>，非线性攻略顺序</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: 动画扩展内容 -->
+        <div class="slide content-slide" data-index="3">
+            <div class="slide-header">
+                <span class="slide-number">03 / 动画扩写</span>
+                <div class="slide-progress"><div class="slide-progress-bar" style="width: 38%"></div></div>
+            </div>
+            <div class="slide-body two-col">
+                <div class="col-visual">
+                    <div class="visual-placeholder">
+                        <div class="icon">🎬</div>
+                        <p>动画独有叙事层<br><span class="dim">时间折叠 · 记忆闪回</span></p>
+                    </div>
+                </div>
+                <div class="col-text">
+                    <h2>动画<span>新增</span>了什么？</h2>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h4>压缩时间维度</h4>
+                            <p>将游戏数十小时的复仇旅程压缩为<span class="highlight">"一夜白头"</span>的蒙太奇，强化悲剧感</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>填充情感前史</h4>
+                            <p>父亲授拳的闪回段落，游戏仅以照片暗示，动画以<span class="highlight">完整场景建立动机</span></p>
+                        </div>
+                        <div class="timeline-item">
+                            <h4>开放式结局</h4>
+                            <p>游戏强制击败/饶恕杨，动画以<span class="highlight">镜中自省</span>收束，留白处理更具文学性</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: 改编决策要素 -->
+        <div class="slide content-slide" data-index="4">
+            <div class="slide-header">
+                <span class="slide-number">04 / 决策逻辑</span>
+                <div class="slide-progress"><div class="slide-progress-bar" style="width: 50%"></div></div>
+            </div>
+            <div class="slide-body">
+                <table class="compare-table">
+                    <tr>
+                        <th style="width:25%">决策维度</th>
+                        <th style="width:35%">《师父》适配性</th>
+                        <th style="width:40%">反例：为何不选其他</th>
+                    </tr>
+                    <tr>
+                        <td><strong class="highlight">视觉符号</strong></td>
+                        <td>衰老皱纹、白眉拳架、霓虹雨夜——<strong>静态帧即海报</strong></td>
+                        <td>策略/卡牌类游戏缺乏<span class="dim">身体叙事</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong class="highlight">情绪曲线</strong></td>
+                        <td>愤怒→疲惫→释然，<strong>单集闭环</strong></td>
+                        <td>开放世界RPG情绪过于<span class="dim">分散绵长</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong class="highlight">动作成本</strong></td>
+                        <td>近身格斗=<strong>小场景高信息密度</strong></td>
+                        <td>载具/射击类动画<span class="dim">烧钱且同质化</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong class="highlight">文化套利</strong></td>
+                        <td>东方功夫=<strong>西方观众"熟悉的陌生"</strong></td>
+                        <td>纯日式/纯中式审美<span class="dim">圈层壁垒</span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 6: 支线任务设计 -->
+        <div class="slide content-slide" data-index="5">
+            <div class="slide-header">
+                <span class="slide-number">05 / 可玩性延伸</span>
+                <div class="slide-progress"><div class="slide-progress-bar" style="width: 63%"></div></div>
+            </div>
+            <div class="slide-body two-col">
+                <div class="col-text">
+                    <h2>动画内容<span>游戏化</span>为支线</h2>
+                    <div class="key-point">
+                        <strong>"镜中界"</strong> — 解锁条件：真结局后<br>
+                        进入主角记忆迷宫，<span class="highlight">以老年姿态重打年轻关卡</span>，体力受限但招式全开
+                    </div>
+                    <div class="key-point">
+                        <strong>"授业"</strong> — 解锁条件：不死通关任一Boss<br>
+                        扮演父亲教导年幼主角，<span class="highlight">QTE式基本功训练</span>，失败不影响主线
+                    </div>
+                    <div class="key-point">
+                        <strong>"和解"</strong> — 解锁条件：饶恕全部五仇家<br>
+                        动画结局的交互版：与杨<span class="highlight">对话选择</span>，非战斗通关
+                    </div>
+                </div>
+                <div class="col-visual">
+                    <div class="visual-placeholder">
+                        <div style="margin-bottom: 2vh;">
+                            <span class="mechanic-tag">roguelike</span>
+                            <span class="mechanic-tag">叙事解谜</span>
+                            <span class="mechanic-tag">情感QTE</span>
+                        </div>
+                        <p>设计锚点<br><span class="dim">机制复用 × 情感增值 × 低开发成本</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: 副本原型论证 -->
+        <div class="slide content-slide" data-index="6">
+            <div class="slide-header">
+                <span class="slide-number">06 / 副本可行性</span>
+                <div class="slide-progress"><div class="slide-progress-bar" style="width: 75%"></div></div>
+            </div>
+            <div class="slide-body">
+                <div class="card-grid">
+                    <div class="card">
+                        <span class="card-num">✓</span>
+                        <h3>资产复用率高</h3>
+                        <p>场景（贫民窟、雨夜街道）、角色模型（老年主角）、动作数据均<span class="highlight">现成可用</span>，边际成本极低</p>
+                    </div>
+                    <div class="card">
+                        <span class="card-num">✓</span>
+                        <h3>机制不冲突</h3>
+                        <p>"衰老"本就是核心玩法，动画的<span class="highlight">时间压缩叙事</span>可转化为"限时生存"模式</p>
+                    </div>
+                    <div class="card">
+                        <span class="card-num">✓</span>
+                        <h3>情感闭环价值</h3>
+                        <p>游戏主线是"复仇"，支线提供"放下"，<span class="highlight">二元对立</span>丰富玩家选择空间与讨论话题</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: 结论 -->
+        <div class="slide content-slide" data-index="7">
+            <div class="slide-header">
+                <span class="slide-number">07 / 结论</span>
+                <div class="slide-progress"><div class="slide-progress-bar" style="width: 88%"></div></div>
+            </div>
+            <div class="slide-body" style="max-width: 800px;">
+                <div class="verdict-box">
+                    <h3>改编选择的本质</h3>
+                    <p>爱死机团队选择《师父》，并非因其知名度（远低于战锤、王者荣耀），而是<strong class="highlight">"机制-叙事-视觉"的三位一体</strong>——衰老系统天然提供时间隐喻，功夫类型提供动作 spectacle，粤港空间提供美术辨识度。</p>
+                </div>
+                <div class="verdict-box">
+                    <h3>动画→游戏的反哺路径</h3>
+                    <p>动画扩展的"记忆闪回"与"和解结局"，恰好填补原作<strong class="highlight">"重机制轻叙事"</strong>的短板，以<span class="highlight">低成本支线</span>形式回馈游戏本体，形成跨媒介闭环。</p>
+                </div>
+                <div class="verdict-box">
+                    <h3>个人判断</h3>
+                    <p>此类改编最适合<strong class="highlight">"系统驱动型"</strong>而非"剧情驱动型"游戏——机制本身就是最好的故事，动画只需<span class="dim">提取、放大、赋予情感锚点</span>。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: 尾页 -->
+        <div class="slide cover-slide" data-index="8">
+            <div class="cover-content">
+                <div class="cover-badge">END</div>
+                <h1 class="cover-title" style="font-size: clamp(2rem, 4vw, 3.5rem);">系统即叙事</h1>
+                <p class="cover-subtitle">Mechanics as Metaphor</p>
+                <div class="cover-meta" style="margin-top: 6vh;">
+                    <span>《师父：匆匆一生》</span>
+                    <span>Secret Level S1E2</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">◀</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">▶</button>
+    </div>
+    <div class="page-indicator" id="pageIndicator">1 / 9</div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            document.getElementById('pageIndicator').textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function changeSlide(direction) {
+            const newSlide = currentSlide + direction;
+            if (newSlide >= 0 && newSlide < totalSlides) {
+                currentSlide = newSlide;
+                updateSlide();
+            }
+        }
+
+        // 键盘导航
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                changeSlide(-1);
+            }
+        });
+
+        // 触摸滑动支持
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+        document.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) {
+                changeSlide(diff > 0 ? 1 : -1);
+            }
+        });
+
+        updateSlide();
+    </script>
+</body>
+</html>
